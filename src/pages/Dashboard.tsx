@@ -5,6 +5,8 @@ import Footer from '@/components/layout/Footer';
 import Overview from '@/components/dashboard/Overview';
 import CompanyMaster from '@/components/dashboard/CompanyMaster';
 import BranchMaster from '@/components/dashboard/BranchMaster';
+import RoleMaster from '@/components/dashboard/RoleMaster';
+import EmployeeMaster from '@/components/dashboard/EmployeeMaster';
 import PunchDesk from '@/components/dashboard/PunchDesk';
 import Reports from '@/components/dashboard/Reports';
 import CustomToast from '@/components/ui/CustomToast';
@@ -29,6 +31,10 @@ const Dashboard = () => {
         return <CompanyMaster onToast={showToast} />;
       case TabType.BRANCH_MASTER:
         return <BranchMaster onToast={showToast} />;
+      case TabType.ROLE_MASTER:
+        return <RoleMaster onToast={showToast} />;
+      case TabType.EMP_MASTER:
+        return <EmployeeMaster onToast={showToast} />;
       case TabType.MANUAL_ENTRY:
         return <PunchDesk onToast={showToast} />;
       case TabType.REPORTS:

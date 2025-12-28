@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { UserPlus, Calendar, CheckSquare, Square, MoreHorizontal } from 'lucide-react';
+import { UserPlus, Calendar, MoreHorizontal } from 'lucide-react';
 import GlassForm from '@/components/ui/GlassForm';
 import DataTable from '@/components/ui/DataTable';
 import { useProfiles, useUpdateProfile } from '@/hooks/useProfiles';
@@ -11,12 +11,14 @@ interface EmployeeMasterProps {
 }
 
 const EmployeeMaster = ({ onToast }: EmployeeMasterProps) => {
-  const [viewMode, setViewMode] = useState<'FORM' | 'LIST'>('LIST');
+  const [viewMode, setViewMode] = useState<'FORM' | 'LIST'>('FORM');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [empCompany, setEmpCompany] = useState('');
   const [empBranch, setEmpBranch] = useState('');
   const [empName, setEmpName] = useState('');
+  const [empGender, setEmpGender] = useState('Male');
   const [empBioId, setEmpBioId] = useState('');
+  const [empErpId, setEmpErpId] = useState('');
   const [empIsInactive, setEmpIsInactive] = useState(false);
   const [empInactDate, setEmpInactDate] = useState('');
 
@@ -34,7 +36,9 @@ const EmployeeMaster = ({ onToast }: EmployeeMasterProps) => {
     setEmpCompany('');
     setEmpBranch('');
     setEmpName('');
+    setEmpGender('Male');
     setEmpBioId('');
+    setEmpErpId('');
     setEmpIsInactive(false);
     setEmpInactDate('');
   };
@@ -42,6 +46,11 @@ const EmployeeMaster = ({ onToast }: EmployeeMasterProps) => {
   const handleSave = async () => {
     if (!editingId) {
       onToast('Employee creation requires user signup. Use employee self-registration.', 'error');
+      return;
+    }
+
+    if (!empName.trim()) {
+      onToast('Employee name is required', 'error');
       return;
     }
 
@@ -112,7 +121,7 @@ const EmployeeMaster = ({ onToast }: EmployeeMasterProps) => {
 
   return (
     <GlassForm
-      title="Employee Master"
+      title="Employee Master (API)"
       icon={UserPlus}
       subtitle="Persistent Personnel Record"
       viewMode={viewMode}
@@ -131,10 +140,10 @@ const EmployeeMaster = ({ onToast }: EmployeeMasterProps) => {
       ) : (
         <div className="space-y-12 animate-in">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-16 gap-y-10">
-            {/* Left Column */}
+            {/* Left Column - Main Data */}
             <div className="space-y-6">
               <div className="space-y-2">
-                <label className="label-text">Company</label>
+                <label className="label-text">Company*</label>
                 <select
                   className="glass-input"
                   value={empCompany}
@@ -172,11 +181,11 @@ const EmployeeMaster = ({ onToast }: EmployeeMasterProps) => {
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="label-text">Employee No.</label>
+                <label className="label-text">Employee No.*</label>
                 <div className="flex gap-2">
                   <input
                     readOnly
-                    value={editingId ? profiles.find((p) => p.id === editingId)?.employee_id : 'AUTO_GEN'}
+                    value={editingId ? profiles.find((p) => p.id === editingId)?.employee_id : 'AUTO_GEN_ID'}
                     className="glass-input flex-1 cursor-not-allowed opacity-50"
                   />
                   <button className="bg-secondary p-4 rounded-2xl border border-border text-primary hover:bg-muted">
@@ -194,43 +203,61 @@ const EmployeeMaster = ({ onToast }: EmployeeMasterProps) => {
                   onChange={(e) => setEmpName(e.target.value)}
                 />
               </div>
+              <div className="space-y-2">
+                <label className="label-text">Gender*</label>
+                <select
+                  className="glass-input"
+                  value={empGender}
+                  onChange={(e) => setEmpGender(e.target.value)}
+                >
+                  <option value="Male" className="bg-background">Male</option>
+                  <option value="Female" className="bg-background">Female</option>
+                  <option value="Other" className="bg-background">Other</option>
+                </select>
+              </div>
             </div>
 
-            {/* Center Column */}
+            {/* Center Column - IDs */}
             <div className="space-y-6">
               <div className="space-y-2">
                 <label className="label-text">Biometric ID</label>
                 <input
                   type="text"
+                  placeholder="Enter Biometric ID"
                   className="glass-input"
                   value={empBioId}
                   onChange={(e) => setEmpBioId(e.target.value)}
                 />
               </div>
+              <div className="space-y-2">
+                <label className="label-text">ERP User ID</label>
+                <input
+                  type="text"
+                  placeholder="Enter ERP User ID"
+                  className="glass-input"
+                  value={empErpId}
+                  onChange={(e) => setEmpErpId(e.target.value)}
+                />
+              </div>
             </div>
 
-            {/* Right Column */}
+            {/* Right Column - Status */}
             <div className="space-y-6">
               <div className="bg-secondary/50 p-8 rounded-[2.5rem] border border-border space-y-8">
                 <div className="flex items-center gap-4">
-                  <button
-                    type="button"
-                    onClick={() => setEmpIsInactive(!empIsInactive)}
-                    className={`w-5 h-5 rounded border flex items-center justify-center ${
-                      empIsInactive
-                        ? 'bg-primary border-primary text-primary-foreground'
-                        : 'bg-secondary border-border'
-                    }`}
-                  >
-                    {empIsInactive && <CheckSquare size={14} />}
-                  </button>
+                  <input
+                    type="checkbox"
+                    checked={empIsInactive}
+                    onChange={(e) => setEmpIsInactive(e.target.checked)}
+                    className="w-5 h-5 rounded bg-background border-border checked:bg-primary cursor-pointer"
+                  />
                   <span className="text-[11px] font-black text-muted-foreground uppercase tracking-widest">
-                    Inactive Status
+                    Inactive
                   </span>
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
-                    Inactivated Date
+                    Inactivated Dt
                   </label>
                   <div className="relative">
                     <input
@@ -241,7 +268,7 @@ const EmployeeMaster = ({ onToast }: EmployeeMasterProps) => {
                       onChange={(e) => setEmpInactDate(e.target.value)}
                     />
                     <Calendar
-                      className="absolute right-6 top-1/2 -translate-y-1/2 text-muted-foreground/30"
+                      className="absolute right-6 top-1/2 -translate-y-1/2 text-muted-foreground/30 pointer-events-none"
                       size={16}
                     />
                   </div>

@@ -168,7 +168,7 @@ export type Database = {
           inactive_date: string | null
           is_active: boolean
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           biometric_id?: string | null
@@ -181,7 +181,7 @@ export type Database = {
           inactive_date?: string | null
           is_active?: boolean
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           biometric_id?: string | null
@@ -194,7 +194,7 @@ export type Database = {
           inactive_date?: string | null
           is_active?: boolean
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {

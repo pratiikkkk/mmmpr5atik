@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import GlassForm from '@/components/ui/GlassForm';
 import { Link as LinkIcon, Loader2 } from 'lucide-react';
-import { useProfiles } from '@/hooks/useProfiles';
+import { useProfiles, useProfilesHasApiUsername } from '@/hooks/useProfiles';
 import { useLinkMasters, useCreateLinkMaster, useUpdateLinkMaster, useLinkMasterByERP } from '@/hooks/useLinkMaster';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -9,6 +9,7 @@ interface Props { onToast: (msg: string, type: 'success' | 'error') => void }
 
 const ApiLinkMaster = ({ onToast }: Props) => {
   const { data: profiles = [] } = useProfiles();
+  const { data: hasApiUsername } = useProfilesHasApiUsername();
   const linkMastersQuery = useLinkMasters();
   const linkmasters = linkMastersQuery.data || [];
   const createMutation = useCreateLinkMaster();
@@ -270,8 +271,24 @@ const ApiLinkMaster = ({ onToast }: Props) => {
           <input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} />
         </div>
 
+        {/* If the DB is missing api_username, show a clear warning and disable saving to avoid runtime errors */}
+        {hasApiUsername === false && (
+          <div className="p-3 bg-yellow-50 border border-yellow-200 rounded text-sm">
+            <strong className="font-bold">Database schema issue:</strong> `api_username` column missing in `profiles`. Please run the migration to add it.
+          </div>
+        )}
+
         <div className="flex gap-2">
-          <button className="btn bg-primary text-primary-foreground" onClick={handleSave} disabled={createMutation.isPending || updateMutation.isPending}>{createMutation.isPending || updateMutation.isPending ? 'Saving...' : 'Save'}</button>
+          <button
+            className="btn bg-primary text-primary-foreground"
+            onClick={handleSave}
+            disabled={
+              createMutation.isPending || updateMutation.isPending || hasApiUsername === false
+            }
+            title={hasApiUsername === false ? 'Disabled until api_username column is present in the database' : undefined}
+          >
+            {createMutation.isPending || updateMutation.isPending ? 'Saving...' : 'Save'}
+          </button>
           <button className="btn" onClick={() => { setSelectedProfileId(null); setApplicableFrom(''); setApplicableTo(''); setActive(true); }}>Reset</button>
         </div>
 

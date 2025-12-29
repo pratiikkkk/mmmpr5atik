@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { UserPlus, Calendar, MoreHorizontal } from 'lucide-react';
 import GlassForm from '@/components/ui/GlassForm';
 import DataTable from '@/components/ui/DataTable';
-import { useProfiles, useUpdateProfile, useCreateProfile } from '@/hooks/useProfiles';
+import { useProfiles, useUpdateProfile, useCreateProfile, useProfilesHasApiUsername } from '@/hooks/useProfiles';
 import { useCompanies } from '@/hooks/useCompanies';
 import { useBranches } from '@/hooks/useBranches';
 import { useSetUserRoles, useUserRoles } from '@/hooks/useUserRoles';
@@ -33,6 +33,7 @@ const EmployeeMaster = ({ onToast }: EmployeeMasterProps) => {
   const queryClient = useQueryClient();
 
   const { data: profiles = [], isLoading } = useProfiles();
+  const { data: hasApiUsername } = useProfilesHasApiUsername();
   const { data: companies = [] } = useCompanies();
   const { data: allBranches = [] } = useBranches();
   const updateMutation = useUpdateProfile();
@@ -92,17 +93,22 @@ const EmployeeMaster = ({ onToast }: EmployeeMasterProps) => {
 
       if (editingId) {
         // Update existing employee
-        await updateMutation.mutateAsync({
+        // Only include api_username in the payload if the DB has that column (avoid runtime errors)
+        const updatePayload: any = {
           id: editingId,
           full_name: empName,
           company_id: empCompany || null,
           branch_id: empBranch || null,
           biometric_id: empBioId || null,
           erp_username: empErpId || null,
-          api_username: empApiUserId || null,
           is_active: !empIsInactive,
           inactive_date: empIsInactive && empInactDate ? empInactDate : null,
-        });
+        };
+        if (hasApiUsername !== false) {
+          updatePayload.api_username = empApiUserId || null;
+        }
+
+        await updateMutation.mutateAsync(updatePayload);
         // try to persist roles if user_id available
         try {
           const profile = profiles.find((p) => p.id === editingId);
@@ -130,17 +136,21 @@ const EmployeeMaster = ({ onToast }: EmployeeMasterProps) => {
         }
       } else {
         // Create new employee
-        const created = await createMutation.mutateAsync({
+        const createPayload: any = {
           employee_id: generateEmployeeId(),
           full_name: empName,
           company_id: empCompany || null,
           branch_id: empBranch || null,
           biometric_id: empBioId || null,
           erp_username: empErpId || null,
-          api_username: empApiUserId || null,
           is_active: !empIsInactive,
           inactive_date: empIsInactive && empInactDate ? empInactDate : null,
-        });
+        };
+        if (hasApiUsername !== false) {
+          createPayload.api_username = empApiUserId || null;
+        }
+
+        const created = await createMutation.mutateAsync(createPayload);
         // if the created profile has an associated auth user, save roles
         try {
           if (created?.user_id) {
@@ -180,6 +190,10 @@ const EmployeeMaster = ({ onToast }: EmployeeMasterProps) => {
     setEmpBioId(profile.biometric_id || '');
     setEmpErpId(profile.erp_username || '');
     setEmpApiUserId(profile.api_username || '');
+    // if api_username column is missing, notify user when they open record
+    if (hasApiUsername === false) {
+      onToast('Database missing `api_username` column; API username will not be saved until migration is applied', 'warning');
+    }
     setEmpIsInactive(!profile.is_active);
     setEmpInactDate(profile.inactive_date || '');
     setEmpUserId(profile.user_id || null);
@@ -318,6 +332,11 @@ const EmployeeMaster = ({ onToast }: EmployeeMasterProps) => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-16 gap-y-10">
             {/* Left Column - Main Data */}
             <div className="space-y-6">
+              {hasApiUsername === false && (
+                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded text-sm">
+                  <strong className="font-bold">Database schema issue:</strong> `api_username` column missing in `profiles`. API Username will not be saved until migration is applied.
+                </div>
+              )}
               <div className="space-y-2">
                 <label className="label-text">Company*</label>
                 <select
@@ -424,7 +443,11 @@ const EmployeeMaster = ({ onToast }: EmployeeMasterProps) => {
                   className="glass-input"
                   value={empApiUserId}
                   onChange={(e) => setEmpApiUserId(e.target.value)}
+                  disabled={hasApiUsername === false}
                 />
+                {hasApiUsername === false && (
+                  <div className="text-xs text-muted-foreground">Disabled: `api_username` column missing in database</div>
+                )}
               </div>
 
               {/* System Section */}

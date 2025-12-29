@@ -11,6 +11,7 @@ vi.mock('@/hooks/useProfiles', () => ({
   useProfiles: () => ({ data: [{ id: '1', full_name: 'Alice', erp_username: 'ERP1', api_username: '111' }] }),
   useCreateProfile: () => mockCreate,
   useUpdateProfile: () => mockUpdate,
+  useProfilesHasApiUsername: () => ({ data: true }),
 }));
 
 vi.mock('@/hooks/useCompanies', () => ({ useCompanies: () => ({ data: [] }) }));

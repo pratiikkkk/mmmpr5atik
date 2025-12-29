@@ -36,6 +36,24 @@ export const useProfile = (userId: string) => {
   });
 };
 
+export const useCreateProfile = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (profile: Omit<ProfileInsert, 'id' | 'created_at' | 'updated_at'>) => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .insert(profile)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profiles'] });
+    },
+  });
+};
+
 export const useUpdateProfile = () => {
   const queryClient = useQueryClient();
   return useMutation({

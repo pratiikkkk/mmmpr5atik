@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { UserPlus, Calendar, MoreHorizontal } from 'lucide-react';
 import GlassForm from '@/components/ui/GlassForm';
 import DataTable from '@/components/ui/DataTable';
-import { useProfiles, useUpdateProfile } from '@/hooks/useProfiles';
+import { useProfiles, useUpdateProfile, useCreateProfile } from '@/hooks/useProfiles';
 import { useCompanies } from '@/hooks/useCompanies';
 import { useBranches } from '@/hooks/useBranches';
 
@@ -26,6 +26,7 @@ const EmployeeMaster = ({ onToast }: EmployeeMasterProps) => {
   const { data: companies = [] } = useCompanies();
   const { data: allBranches = [] } = useBranches();
   const updateMutation = useUpdateProfile();
+  const createMutation = useCreateProfile();
 
   const filteredBranches = empCompany
     ? allBranches.filter((b) => b.company_id === empCompany)
@@ -43,32 +44,48 @@ const EmployeeMaster = ({ onToast }: EmployeeMasterProps) => {
     setEmpInactDate('');
   };
 
-  const handleSave = async () => {
-    if (!editingId) {
-      onToast('Employee creation requires user signup. Use employee self-registration.', 'error');
-      return;
-    }
+  const generateEmployeeId = () => {
+    const prefix = 'EMP';
+    const timestamp = Date.now().toString(36).toUpperCase();
+    return `${prefix}-${timestamp}`;
+  };
 
+  const handleSave = async () => {
     if (!empName.trim()) {
       onToast('Employee name is required', 'error');
       return;
     }
 
     try {
-      await updateMutation.mutateAsync({
-        id: editingId,
-        full_name: empName,
-        company_id: empCompany || null,
-        branch_id: empBranch || null,
-        biometric_id: empBioId || null,
-        is_active: !empIsInactive,
-        inactive_date: empIsInactive && empInactDate ? empInactDate : null,
-      });
-      onToast('Employee updated successfully', 'success');
+      if (editingId) {
+        // Update existing employee
+        await updateMutation.mutateAsync({
+          id: editingId,
+          full_name: empName,
+          company_id: empCompany || null,
+          branch_id: empBranch || null,
+          biometric_id: empBioId || null,
+          is_active: !empIsInactive,
+          inactive_date: empIsInactive && empInactDate ? empInactDate : null,
+        });
+        onToast('Employee updated successfully', 'success');
+      } else {
+        // Create new employee
+        await createMutation.mutateAsync({
+          employee_id: generateEmployeeId(),
+          full_name: empName,
+          company_id: empCompany || null,
+          branch_id: empBranch || null,
+          biometric_id: empBioId || null,
+          is_active: !empIsInactive,
+          inactive_date: empIsInactive && empInactDate ? empInactDate : null,
+        });
+        onToast('Employee created successfully', 'success');
+      }
       resetForm();
       setViewMode('LIST');
     } catch (error: any) {
-      onToast(error.message || 'Failed to update employee', 'error');
+      onToast(error.message || 'Failed to save employee', 'error');
     }
   };
 
@@ -129,7 +146,7 @@ const EmployeeMaster = ({ onToast }: EmployeeMasterProps) => {
       handleSave={handleSave}
       isEditing={!!editingId}
       onReset={resetForm}
-      isSaving={updateMutation.isPending}
+      isSaving={updateMutation.isPending || createMutation.isPending}
     >
       {viewMode === 'LIST' ? (
         isLoading ? (

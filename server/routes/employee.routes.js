@@ -93,12 +93,6 @@ router.put('/update', async (req, res, next) => {
 		next(err);
 	}
 });
-// routes/employee.routes.js
-const express = require('express');
-const router = express.Router();
-
-const oracleClient = require('../oracleClient');
-const oracledb = require('oracledb');
 
 // POST /api/employee/save
 router.post('/save', async (req, res, next) => {

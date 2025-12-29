@@ -1,7 +1,14 @@
 const express = require('express');
 const app = express();
+const { subscribe, publish } = require('./longPollingManager');
 
 app.use(express.json());
+
+app.get('/api/subscribe', subscribe);
+app.post('/api/publish', (req, res) => {
+  publish(req.body);
+  res.status(204).end();
+});
 
 app.use('/api/employee', require('./routes/employee.routes'));
 app.use('/api/api-link', require('./routes/apiLink.routes'));

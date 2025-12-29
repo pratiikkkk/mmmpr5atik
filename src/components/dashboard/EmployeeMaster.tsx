@@ -192,7 +192,7 @@ const EmployeeMaster = ({ onToast }: EmployeeMasterProps) => {
     setEmpApiUserId(profile.api_username || '');
     // if api_username column is missing, notify user when they open record
     if (hasApiUsername === false) {
-      onToast('Database missing `api_username` column; API username will not be saved until migration is applied', 'warning');
+      onToast('Database missing `api_username` column; API username will not be saved until migration is applied', 'error');
     }
     setEmpIsInactive(!profile.is_active);
     setEmpInactDate(profile.inactive_date || '');
@@ -224,7 +224,7 @@ const EmployeeMaster = ({ onToast }: EmployeeMasterProps) => {
           if (result.user.linked) {
             onToast('Login created (dev mode) and linked', 'success');
           } else {
-            onToast('Dev: login created but not linked to profile (no service key)', 'warning');
+            onToast('Dev: login created but not linked to profile (no service key)', 'error');
           }
         } else {
           onToast('Login created and linked', 'success');

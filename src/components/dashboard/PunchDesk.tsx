@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { LogIn, Navigation, Globe, Activity } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useProfile } from '@/hooks/useProfiles';
+// import { useProfile } from '@/hooks/useProfiles';
 import { useCreatePunch, useAttendancePunches } from '@/hooks/useAttendance';
 
 interface PunchDeskProps {

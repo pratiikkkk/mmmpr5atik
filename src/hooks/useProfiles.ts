@@ -15,7 +15,25 @@ export const useProfiles = () => {
         .select('*, companies(company_name, company_code), branches(branch_name)')
         .order('full_name');
       if (error) throw error;
-      return data;
+
+      // fetch user roles for returned profiles and merge
+      const profiles = (data || []) as any[];
+      const userIds = profiles.map((p) => p.user_id).filter(Boolean);
+      let rolesMap: Record<string, string[]> = {};
+      if (userIds.length) {
+        const { data: ur, error: urErr } = await supabase
+          .from('user_roles')
+          .select('user_id, role')
+          .in('user_id', userIds);
+        if (urErr) throw urErr;
+        rolesMap = (ur || []).reduce((acc: Record<string, string[]>, r: any) => {
+          if (!acc[r.user_id]) acc[r.user_id] = [];
+          acc[r.user_id].push(r.role);
+          return acc;
+        }, {} as Record<string, string[]>);
+      }
+
+      return profiles.map((p) => ({ ...p, roles: rolesMap[p.user_id] || [] }));
     },
   });
 };

@@ -14,8 +14,8 @@ const Header = ({ userName = 'System' }: HeaderProps) => {
   }, []);
 
   return (
-    <header className="sticky top-6 z-50 mx-auto max-w-7xl px-4">
-      <div className="backdrop-blur-3xl bg-card/80 border border-border rounded-3xl px-8 h-20 flex justify-between items-center shadow-2xl">
+    <header className="sticky top-0 z-50 w-full">
+      <div className="mx-auto w-[90%] backdrop-blur-3xl bg-card/80 border border-border rounded-3xl px-8 h-20 flex justify-between items-center shadow-sm">
         <div className="flex items-center gap-4">
           <Activity className="text-success w-6 h-6" />
           <div>

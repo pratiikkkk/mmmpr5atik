@@ -1,4 +1,4 @@
-import { Layout, Building2, GitBranch, ShieldCheck, UserPlus, LogIn, FileText } from 'lucide-react';
+import { Layout, Building2, GitBranch, ShieldCheck, UserPlus, LogIn, FileText, Link } from 'lucide-react';
 import { TabType, NavTab } from '@/types';
 
 interface NavigationProps {
@@ -12,14 +12,15 @@ const navTabs: NavTab[] = [
   { id: TabType.BRANCH_MASTER, name: 'Branch', icon: GitBranch },
   { id: TabType.ROLE_MASTER, name: 'Role', icon: ShieldCheck },
   { id: TabType.EMP_MASTER, name: 'Employee', icon: UserPlus },
+  { id: TabType.LINK_MASTER, name: 'ERP/API Link Master', icon: Link },
   { id: TabType.MANUAL_ENTRY, name: 'Punch Desk', icon: LogIn },
   { id: TabType.REPORTS, name: 'Reports', icon: FileText },
 ];
 
 const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
   return (
-    <nav className="flex justify-center mb-12 overflow-x-auto no-scrollbar scroll-smooth">
-      <div className="bg-secondary/50 backdrop-blur-2xl p-1.5 rounded-3xl border border-border inline-flex shadow-xl">
+    <nav className="sticky top-20 z-40 w-full mb-6">
+      <div className="w-[90%] mx-auto bg-secondary/50 backdrop-blur-2xl p-1.5 rounded-3xl border border-border inline-flex shadow-xl overflow-x-auto no-scrollbar scroll-smooth">
         {navTabs.map((tab) => (
           <button
             key={tab.id}

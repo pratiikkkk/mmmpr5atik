@@ -7,6 +7,7 @@ import CompanyMaster from '@/components/dashboard/CompanyMaster';
 import BranchMaster from '@/components/dashboard/BranchMaster';
 import RoleMaster from '@/components/dashboard/RoleMaster';
 import EmployeeMaster from '@/components/dashboard/EmployeeMaster';
+import ApiLinkMaster from '@/components/dashboard/ApiLinkMaster';
 import PunchDesk from '@/components/dashboard/PunchDesk';
 import Reports from '@/components/dashboard/Reports';
 import CustomToast from '@/components/ui/CustomToast';
@@ -35,6 +36,8 @@ const Dashboard = () => {
         return <RoleMaster onToast={showToast} />;
       case TabType.EMP_MASTER:
         return <EmployeeMaster onToast={showToast} />;
+      case TabType.LINK_MASTER:
+        return <ApiLinkMaster onToast={showToast} />;
       case TabType.MANUAL_ENTRY:
         return <PunchDesk onToast={showToast} />;
       case TabType.REPORTS:
@@ -48,9 +51,9 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/30 overflow-x-hidden pb-20">
       {toast && <CustomToast message={toast.message} type={toast.type} />}
       <Header userName={user?.email?.split('@')[0] || 'System'} />
-      <main className="max-w-7xl mx-auto px-4 py-12">
+      <main className="w-[90%] mx-auto px-4 py-12">
         <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
-        {renderContent()}
+        <div className="mt-6">{renderContent()}</div>
       </main>
       <Footer />
     </div>

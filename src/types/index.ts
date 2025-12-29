@@ -6,6 +6,7 @@ export enum TabType {
   BRANCH_MASTER = 'branch-master',
   ROLE_MASTER = 'role-master',
   EMP_MASTER = 'emp-master',
+  LINK_MASTER = 'link-master',
   MANUAL_ENTRY = 'manual-entry',
   REPORTS = 'reports',
 }
@@ -16,6 +17,7 @@ export const APP_SCREENS = [
   'Branch Master',
   'Role Master',
   'Employee Master',
+  'ERP/API Link Master',
   'Punch Desk',
   'Reports Console',
   'System Logs',

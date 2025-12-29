@@ -60,6 +60,17 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## ERP/API Link Master (new)
+
+This repository now includes an implementation of the "ERP & API Username Linking Master" feature which:
+
+- Adds `erp_username` and `api_username` columns to `profiles` and creates `kbs_api_linkmaster` table via SQL migration at `supabase/migrations/20251229123000_create_kbs_api_linkmaster.sql`.
+- Enforces numeric `apiusername`, uniqueness for active `erpusername` mappings, and a sync trigger that keeps the linkmaster table updated when employee (profiles) are inserted/updated.
+- Adds `src/components/dashboard/ApiLinkMaster.tsx` and `src/hooks/useLinkMaster.ts` for the UI and data layer.
+- Provides an optional server-side hook example at `server/hooks/syncProfileToLinkMaster.ts` and an admin API at `api/admin/linkmaster.ts` (requires SUPABASE_SERVICE_ROLE_KEY).
+
+Follow the migration file to apply DB changes to your Supabase/Postgres instance and test with the checklist in the project notes.
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
